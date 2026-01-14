@@ -1,192 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Raise Non-Conformance</title>
-  <style>
-    body.form-body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>Shape Roll Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f2f2f2;
+        }
 
-    .form-container {
-      max-width: 700px;
-      margin: auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+        h1 {
+            margin-top: 30px;
+        }
 
-    .form-header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        #shapeBox {
+            width: 200px;
+            height: 200px;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
 
-    .form-logo {
-      height: 60px;
-      margin-bottom: 10px;
-    }
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #007bff;
+            color: white;
+        }
 
-    .form-header h1 {
-      margin: 0;
-      font-size: 24px;
-      color: #333;
-    }
-
-    .form-header p {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .form-row {
-      margin-bottom: 15px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-row label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: #444;
-    }
-
-    .form-row input,
-    .form-row select,
-    .form-row textarea {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    fieldset.form-row {
-      border: none;
-      padding: 0;
-      margin-bottom: 15px;
-    }
-
-    fieldset.form-row legend {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    fieldset.form-row label {
-      margin-right: 15px;
-    }
-
-    button[type="submit"] {
-      background-color: #0078d4;
-      color: white;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #005ea2;
-    }
-  </style>
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
-<body class="form-body">
-  <div class="form-container">
-    <header class="form-header">
-      <img src="Logo.png" alt="Manifold Logo" class="form-logo">
-      <h1>Non-Conformance Form</h1>
-      <p>Please fill out the Non-Conformance Report</p>
-    </header>
+<body>
 
-    <form id="ncForm">
-      <div class="form-row"><label>Originator Name:</label><input type="text" name="originator" required></div>
-      <div class="form-row"><label>Date:</label><input type="date" name="date" required></div>
+<h1>🎲 Shape Roll Game</h1>
 
-      <fieldset class="form-row">
-        <legend>System</legend>
-        <label><input type="radio" name="system" value="HR"> HR</label>
-        <label><input type="radio" name="system" value="MS"> MS</label>
-      </fieldset>
+<div id="shapeBox">❓</div>
 
-      <div class="form-row"><label>PO Number:</label><input type="text" name="po"></div>
-      <div class="form-row"><label>Project Number:</label><input type="text" name="project"></div>
-      <div class="form-row"><label>Part Number:</label><input type="text" name="partNo"></div>
-      <div class="form-row"><label>Part Name:</label><input type="text" name="partName"></div>
-
-      <div class="form-row"><label>Work Centre Discovered:</label>
-        <select name="workCentre">
-          <option>Raw Material</option><option>Roughing 1</option><option>Roughing 2</option>
-          <option>Plugging and Deburring</option><option>Finishing</option><option>Impacting</option>
-          <option>Final</option><option>Assembly Line</option><option>Others</option>
-        </select>
-      </div>
-
-      <div class="form-row"><label>If Others, specify:</label><input type="text" name="discoveredArea"></div>
-      <div class="form-row"><label>Issue Description:</label><textarea name="description" rows="4"></textarea></div>
-      <div class="form-row"><button type="submit">Submit NC</button></div>
-    </form>
-  </div>
+<button onclick="rollShape()">ROLL</button>
 
 <script>
-  document.getElementById("ncForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+    const shapes = ["🔺", "❤️", "⭐", "⚪"];
+    let rolling;
 
-    const form = e.target;
-    const entry = {
-      originator: form.originator.value,
-      date: form.date.value,
-      system: form.system.value,
-      po: form.po.value,
-      project: form.project.value,
-      partNo: form.partNo.value,
-      partName: form.partName.value,
-      workCentre: form.workCentre.value,
-      discoveredArea: form.discoveredArea.value,
-      description: form.description.value
-    };
+    function rollShape() {
+        let count = 0;
 
-    // Save to localStorage
-    let entries = [];
-    const stored = localStorage.getItem('ncEntries');
-    if (stored) {
-      try {
-        entries = JSON.parse(stored);
-      } catch (err) {
-        console.error("Error parsing stored data:", err);
-        entries = [];
-      }
+        clearInterval(rolling);
+
+        rolling = setInterval(() => {
+            const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+            document.getElementById("shapeBox").innerHTML = randomShape;
+            count++;
+
+            if (count > 15) { // stops after shuffle
+                clearInterval(rolling);
+            }
+        }, 100);
     }
-    entries.push(entry);
-    localStorage.setItem('ncEntries', JSON.stringify(entries));
-
-    // Prepare email
-    const subject = `NC Raised by ${entry.originator} on ${entry.date}`;
-    const body = `
-Originator: ${entry.originator}
-Date: ${entry.date}
-System: ${entry.system}
-PO Number: ${entry.po}
-Project Number: ${entry.project}
-Part Number: ${entry.partNo}
-Part Name: ${entry.partName}
-Work Centre Discovered: ${entry.workCentre}
-If Others, specify: ${entry.discoveredArea}
-Issue Description:
-${entry.description}
-    `;
-
-    const to = "quality@company.com";
-    const cc = "supervisor@company.com";
-    const mailtoLink = `mailto:${to}?cc=${cc}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    // Open email client
-    window.location.href = mailtoLink;
-
-    // Optional: Reset form
-    form.reset();
-  });
 </script>
+
 </body>
 </html>
